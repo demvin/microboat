@@ -13,7 +13,7 @@ import vincenty
 
 bcast = const(b'\xff') * 6
 
-maison = (73, -45)
+maison = (-73, 45)
 
 my_gps = MicropyGPS(0, 'dd')
 
@@ -45,13 +45,15 @@ try:
 except:
     pass
 
-last_sent = time.ticks_ms()
 
 def main():
+    print("main")
+    last_sent = time.ticks_ms()
+    last_no_msg = time.ticks_ms()
 
     while True:
         msg = None
-        host, msg = e.recv(100)
+        host, msg = e.recv(0)
         
         if msg:             # msg == None if timeout in recv()
             #print(host, msg)
@@ -70,14 +72,24 @@ def main():
                 
                 
                 stations[host] = {"last": ar, "dist": dist}
+                #time.sleep_ms(100)
             else:
                 print("wasted")
                 
             #print(stations)
             for t in stations.values():
                 print(t)
-        #else:
-        #    print("no msg")
+        else:
+            #print("no msg")
+            delay = _THROTTLE_INVALID
+            
+            if time.ticks_diff(time.ticks_ms(), last_no_msg) > delay: 
+                #print("no message")
+                #time.sleep_ms(100)
+                print(gc.mem_free())
+                print(e.peers_table)
+                
+                last_no_msg = time.ticks_ms()
             
         if uart1.any():
 
@@ -111,7 +123,7 @@ def main():
                     
                     if time.ticks_diff(time.ticks_ms(), last_sent) > delay: 
                         print(st)
-                        e.send(bcast, st, True)
+                        e.send(bcast, st, False)
     #                     print(my_gps.gps_segments[3] or "NODATA")
     #                     print(my_gps.gps_segments[5] or "NODATA")
     #                     time.sleep(2)
