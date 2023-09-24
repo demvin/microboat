@@ -53,6 +53,8 @@ def main():
     last_no_msg = time.ticks_ms()
     last_print_stations = time.ticks_ms()
 
+    e.send(bcast, "$BOOT|{now}".format(now = last_sent), False)
+
     while True:
         msg = None
         host, msg = e.recv(0)
@@ -73,7 +75,7 @@ def main():
                     lan = lng = dist = None
                 
                 
-                stations[host] = {"last": ar, "dist": dist, "r": time.ticks_ms()}
+                stations[str(host)] = {"last": ar, "dist": dist, "r": time.ticks_ms()}
                 #time.sleep_ms(100)
             else:
                 print("wasted")
