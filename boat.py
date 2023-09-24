@@ -13,7 +13,7 @@ import vincenty
 
 bcast = const(b'\xff') * 6
 
-maison = (-73, 45)
+maison = (45, -73)
 
 my_gps = MicropyGPS(0, 'dd')
 
@@ -27,6 +27,7 @@ my_gps = MicropyGPS(0, 'dd')
 
 _THROTTLE_INVALID = const(5000)
 _THROTTLE_VALID = const(1000)
+_THROTTLE_PRINTSTATIONS = _THROTTLE_VALID
 
 sleep(2)
 
@@ -50,6 +51,7 @@ def main():
     print("main")
     last_sent = time.ticks_ms()
     last_no_msg = time.ticks_ms()
+    last_print_stations = time.ticks_ms()
 
     while True:
         msg = None
@@ -71,26 +73,29 @@ def main():
                     lan = lng = dist = None
                 
                 
-                stations[host] = {"last": ar, "dist": dist}
+                stations[host] = {"last": ar, "dist": dist, "r": time.ticks_ms()}
                 #time.sleep_ms(100)
             else:
                 print("wasted")
                 
             #print(stations)
-            for t in stations.values():
-                print(t)
         else:
+            pass
             #print("no msg")
-            delay = _THROTTLE_INVALID
-            
-            if time.ticks_diff(time.ticks_ms(), last_no_msg) > delay: 
-                #print("no message")
-                #time.sleep_ms(100)
-                print(gc.mem_free())
-                print(e.peers_table)
-                
-                last_no_msg = time.ticks_ms()
-            
+            #delay = _THROTTLE_INVALID
+
+        if time.ticks_diff(time.ticks_ms(), last_print_stations) > _THROTTLE_PRINTSTATIONS: 
+            for k in list(stations.keys()):
+                v = stations[k]
+                v["a"] = time.ticks_diff(time.ticks_ms(), v["r"]) / 1000
+                if v["a"] > 10:
+                    print("ejecting " + str(k))
+                    del  stations[k]
+                else:                   
+                    print(k,v)
+                    
+            last_print_stations = time.ticks_ms()            
+
         if uart1.any():
 
             for b in uart1.read():

@@ -33,8 +33,8 @@ def wifi_reset():   # Reset wifi to AP_IF off, STA_IF on and disconnected
 print("resseting")
 wifi_reset()
 print("radio reset")
-#import boat
-import memtest
+import boat
+#import memtest
 
 
 
