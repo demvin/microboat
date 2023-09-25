@@ -8,6 +8,7 @@ from micropyGPS import MicropyGPS
 import time
 from micropython import const
 import vincenty
+from bno08x_rvc import BNO08x_RVC, RVCReadTimeoutError
 
 #import bno08x_find_heading
 
@@ -47,44 +48,87 @@ except:
     pass
 
 
+uart2 = UART(2, baudrate=115200, rx=27, tx=22)
+rvc = BNO08x_RVC(uart2, timeout=1)
+
 def main():
     print("main")
     last_sent = time.ticks_ms()
     last_no_msg = time.ticks_ms()
     last_print_stations = time.ticks_ms()
+    last_print_head = time.ticks_ms()
 
-    e.send(bcast, "$BOOT|{now}".format(now = last_sent), False)
+    bootmsg = "BOOT|{now}".format(now = last_sent)
+    print("-> " + bootmsg)
+    e.send(bcast, bootmsg , False)
+    del bootmsg
 
     while True:
+        heading = None
+        dist = None
+        
+        try:
+            heading = rvc.heading
+            #direction = get_compass_point(yaw)
+            #offset = get_offset(yaw, direction)
+            #print("{} {}".format(direction, offset))
+            if time.ticks_diff(time.ticks_ms(), last_print_head) > 5000: 
+                outhead = "GPH|{}|{}|{}".format(heading[0], heading[1],heading[2])
+                print("-> " + outhead)
+                e.send(bcast, outhead, False)
+                last_print_head = time.ticks_ms()
+
+        except RVCReadTimeoutError:
+            heading = None
+
         msg = None
         host, msg = e.recv(0)
         
         if msg:             # msg == None if timeout in recv()
             #print(host, msg)
-            msg = str(msg)
+            msg = str(msg, "uft-8")
             msg = validate(msg)
             
             if(msg):
+               
+                val = stations.get(str(host),{})
+                val["r"] = time.ticks_ms()
+                
                 ar = msg.split('|')
                 
-                if len(ar) > 2:            
-                    lat = float(ar[2])
-                    lng = float(ar[3])
-                    dist = vincenty.vincenty(maison, (lat, lng))
+                if ar == None or len(ar) < 1:
+                    continue
+                
+                val["last"] = ar[0]
+                
+                if ar[0] == "GPF":
+                    val["dist"] = None
+                    val["lat"] = None
+                    val["lng"] = None
+                elif ar[0] == "GPT":
+                    if len(ar) > 2:            
+                        lat = float(ar[2])
+                        lng = float(ar[3])
+                        dist = vincenty.vincenty(maison, (lat, lng))
+                        val["dist"] = dist
+                        val["lat"] = lat
+                        val["lng"] = lng
+                    else:
+                        lan = lng = dist = None
+                        val["dist"] = None
+                        val["lat"] = None
+                        val["lng"] = None
+                elif ar[0] == "GPH":
+                   val["h"] = ar[1]
+                elif ar[0] == "BOOT":
+                    pass
                 else:
-                    lan = lng = dist = None
+                    print("unknown packet type: {}".format(ar[0]))
+
+                stations[str(host)] = val                
+                     
+            #time.sleep_ms(100)
                 
-                
-                stations[str(host)] = {"last": ar, "dist": dist, "r": time.ticks_ms()}
-                #time.sleep_ms(100)
-            else:
-                print("wasted")
-                
-            #print(stations)
-        else:
-            pass
-            #print("no msg")
-            #delay = _THROTTLE_INVALID
 
         if time.ticks_diff(time.ticks_ms(), last_print_stations) > _THROTTLE_PRINTSTATIONS: 
             for k in list(stations.keys()):
@@ -129,7 +173,7 @@ def main():
                         delay = _THROTTLE_INVALID
                     
                     if time.ticks_diff(time.ticks_ms(), last_sent) > delay: 
-                        print(st)
+                        print("-> " + st)
                         e.send(bcast, st, False)
     #                     print(my_gps.gps_segments[3] or "NODATA")
     #                     print(my_gps.gps_segments[5] or "NODATA")
@@ -142,3 +186,4 @@ def validate(msg):
     return msg
 
 main()
+
