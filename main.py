@@ -1,5 +1,6 @@
 import network, time
 from machine import RTC
+import ecran
 
 print("waiting")
 time.sleep(1)
@@ -32,9 +33,13 @@ def wifi_reset():   # Reset wifi to AP_IF off, STA_IF on and disconnected
 #/if c.datetime()[5] % 2 == 0:
 print("resseting")
 wifi_reset()
+ecran.init()
+
 print("radio reset")
 import boat
 #import memtest
+#import ecran
+
 
 
 

@@ -9,6 +9,7 @@ import time
 from micropython import const
 import vincenty
 from bno08x_rvc import BNO08x_RVC, RVCReadTimeoutError
+from ecran import updatePos
 
 #import bno08x_find_heading
 
@@ -33,8 +34,11 @@ _THROTTLE_PRINTSTATIONS = _THROTTLE_VALID
 sleep(2)
 
 uart1 = UART(1, baudrate=9600, tx=33, rx=32)
+# 
+# 
 
 stations = {}
+pos = {'lng':'n/a','lat':'n/a','yaw':'n/a'}
 
 e = espnow.ESPNow()
 e.active(True)
@@ -53,6 +57,8 @@ rvc = BNO08x_RVC(uart2, timeout=1)
 
 def main():
     print("main")
+    
+    
     last_sent = time.ticks_ms()
     last_no_msg = time.ticks_ms()
     last_print_stations = time.ticks_ms()
@@ -64,11 +70,15 @@ def main():
     del bootmsg
 
     while True:
+        updatePos(pos)
         heading = None
         dist = None
         
         try:
             heading = rvc.heading
+                
+            pos['yaw'] = str(heading[0])
+            
             #direction = get_compass_point(yaw)
             #offset = get_offset(yaw, direction)
             #print("{} {}".format(direction, offset))
@@ -169,6 +179,8 @@ def main():
                     
                     if my_gps.valid:
                         delay = _THROTTLE_VALID
+                        pos['lat'] = my_gps.latitude_string()
+                        pos['lng'] = my_gps.longitude_string()
                     else:
                         delay = _THROTTLE_INVALID
                     
@@ -186,4 +198,5 @@ def validate(msg):
     return msg
 
 main()
+
 
