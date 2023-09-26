@@ -7,10 +7,17 @@ def init():
     global display
     
     i2c = I2C(0) #scl 18, sda 19
-    display = ssd1306.SSD1306_I2C(128, 64, i2c)
-    print("lcd inited")
+    try:
+        display = ssd1306.SSD1306_I2C(128, 64, i2c)
+        print("lcd inited")
+    except:
+        print("no lcd")
+    
 
 def updatePos(pos):
+    
+    if display == None:
+        return
     
     display.fill(0)
     display.text('LAT:' + pos['lat'], 0, 0, 1)
@@ -73,3 +80,4 @@ def updatePos(pos):
 # display.text('SSD1306', 40, 12, 1)
 # display.text('OLED 128x64', 40, 24, 1)
 # display.show()
+
