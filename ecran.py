@@ -6,23 +6,25 @@ display = None
 def init():
     global display
     
-    i2c = I2C(0) #scl 18, sda 19
-    try:
-        display = ssd1306.SSD1306_I2C(128, 64, i2c)
-        print("lcd inited")
-    except:
-        print("no lcd")
-    
+    i2c = I2C(0)
+    display = ssd1306.SSD1306_I2C(128, 64, i2c)
+    print("lcd inited")
 
-def updatePos(pos):
-    
-    if display == None:
-        return
+def updatePos(pos, stations):
     
     display.fill(0)
     display.text('LAT:' + pos['lat'], 0, 0, 1)
     display.text('LNG:' + pos['lng'], 0, 9)
-    display.text('YAW' + pos['yaw'], 0, 18, 1)
+    display.text('YAW:' + pos['yaw'], 0, 18, 1)
+
+    dist = 0
+    top = 26
+    for k,i in stations.items():
+        print(k,i)
+        if 'dist' in i:
+            display.text('Dis:' + str(i['dist']) or "0", 0, top, 1)
+        top = top + 8
+
     display.show()
     
 
@@ -80,4 +82,3 @@ def updatePos(pos):
 # display.text('SSD1306', 40, 12, 1)
 # display.text('OLED 128x64', 40, 24, 1)
 # display.show()
-

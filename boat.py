@@ -15,7 +15,7 @@ from ecran import updatePos
 
 bcast = const(b'\xff') * 6
 
-maison = (45, -73)
+position = {"lat" : 45.465903, "lng" : -73.746378} #lat, lng
 
 my_gps = MicropyGPS(0, 'dd')
 
@@ -70,7 +70,7 @@ def main():
     del bootmsg
 
     while True:
-        updatePos(pos)
+        
         heading = None
         dist = None
         
@@ -119,7 +119,7 @@ def main():
                     if len(ar) > 2:            
                         lat = float(ar[2])
                         lng = float(ar[3])
-                        dist = vincenty.vincenty(maison, (lat, lng))
+                        dist = vincenty.vincenty((position['lat'], position['lng']), (lat, lng))
                         val["dist"] = dist
                         val["lat"] = lat
                         val["lng"] = lng
@@ -181,6 +181,8 @@ def main():
                         delay = _THROTTLE_VALID
                         pos['lat'] = my_gps.latitude_string()
                         pos['lng'] = my_gps.longitude_string()
+                        position['lat'] = my_gps.my_gps.latitude[0]
+                        position['lng'] = my_gps.longitude[0]
                     else:
                         delay = _THROTTLE_INVALID
                     
@@ -193,10 +195,11 @@ def main():
                         
                         last_sent = time.ticks_ms()
     #                     print("data sent")
+        
+        updatePos(pos, stations)
     
 def validate(msg):
     return msg
 
 main()
-
 
