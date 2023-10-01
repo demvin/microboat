@@ -1,16 +1,25 @@
 from machine import Pin, I2C
 import ssd1306
+import time
 
 display = None
+last_update = time.ticks_ms()
 
 def init():
     global display
     
     i2c = I2C(0)
-    display = ssd1306.SSD1306_I2C(128, 64, i2c)
-    print("lcd inited")
+    try:
+        display = ssd1306.SSD1306_I2C(128, 64, i2c)
+        print("lcd inited")
+    except:
+        print("no led")
 
 def updatePos(pos, stations):
+    global last_update
+            
+    if display == None or time.ticks_diff(time.ticks_ms(), last_update) < 1000:
+        return
     
     display.fill(0)
     display.text('LAT:' + pos['lat'], 0, 0, 1)
@@ -20,13 +29,13 @@ def updatePos(pos, stations):
     dist = 0
     top = 26
     for k,i in stations.items():
-        print(k,i)
+        #print(k,i)
         if 'dist' in i:
             display.text('Dis:' + str(i['dist']) or "0", 0, top, 1)
         top = top + 8
 
     display.show()
-    
+    last_update = time.ticks_ms()
 
 # Basic functions:
 # 
