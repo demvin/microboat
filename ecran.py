@@ -3,6 +3,7 @@ import ssd1306
 import time
 
 display = None
+max_dist = 0
 last_update = time.ticks_ms()
 
 def init():
@@ -17,6 +18,7 @@ def init():
 
 def updatePos(pos, stations):
     global last_update
+    global max_dist
             
     if display == None or time.ticks_diff(time.ticks_ms(), last_update) < 1000:
         return
@@ -31,8 +33,14 @@ def updatePos(pos, stations):
     for k,i in stations.items():
         #print(k,i)
         if 'dist' in i:
-            display.text('Dis:' + str(i['dist']) or "0", 0, top, 1)
+            d = i['dist']
+            display.text('Dis:' + str(d) or "0", 0, top, 1)
+            if d > max_dist:
+                max_dist = d
+            
         top = top + 8
+    
+    display.text('Max:' + str(max_dist) or "0", 0, top, 1)    
 
     display.show()
     last_update = time.ticks_ms()

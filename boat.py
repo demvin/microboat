@@ -15,7 +15,7 @@ from ecran import updatePos
 
 bcast = const(b'\xff') * 6
 
-position = {"lat" : 45.465903, "lng" : -73.746378} #lat, lng
+position = {"lat" : None, "lng" : None} #lat, lng
 
 my_gps = MicropyGPS(0, 'dd')
 
@@ -119,7 +119,11 @@ def main():
                     if len(ar) > 2:            
                         lat = float(ar[2])
                         lng = float(ar[3])
-                        dist = vincenty.vincenty((position['lat'], position['lng']), (lat, lng))
+                        if position['lat'] != None and position['lng'] != None:
+                            dist = vincenty.vincenty((position['lat'], position['lng']), (lat, lng))
+                        else:
+                            dist = 0
+                        
                         val["dist"] = dist
                         val["lat"] = lat
                         val["lng"] = lng
