@@ -176,8 +176,8 @@ def main():
                                                              mm = my_gps.timestamp[1],
                                                              s = int(my_gps.timestamp[2]))
                     
-                    st = "GP{v}|{t}|{lat}|-{lon}|{spd}|{head}".format(v=str(my_gps.valid)[0],
-                        t=datefix, lat=my_gps.latitude[0], lon=my_gps.longitude[0], spd=my_gps.speed[2],
+                    st = "GP{v}|{t}|{lat}|{lon}|{spd}|{head}".format(v=str(my_gps.valid)[0],
+                        t=datefix, lat=my_gps.latitude[0], lon=my_gps.longitude[0] * -1, spd=my_gps.speed[2],
                         head=my_gps.course
                     )
                     
@@ -185,8 +185,8 @@ def main():
                         delay = _THROTTLE_VALID
                         pos['lat'] = my_gps.latitude_string()
                         pos['lng'] = my_gps.longitude_string()
-                        position['lat'] = my_gps.my_gps.latitude[0]
-                        position['lng'] = my_gps.longitude[0]
+                        position['lat'] = my_gps.latitude[0]
+                        position['lng'] = my_gps.longitude[0] * -1
                     else:
                         delay = _THROTTLE_INVALID
                     
