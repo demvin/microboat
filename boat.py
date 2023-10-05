@@ -119,10 +119,10 @@ def main():
                     if len(ar) > 2:            
                         lat = float(ar[2])
                         lng = float(ar[3])
-                        if position['lat'] != None and position['lng'] != None:
+                        if position['lat'] is not None and position['lng'] is not None:
                             dist = vincenty.vincenty((position['lat'], position['lng']), (lat, lng))
                         else:
-                            dist = 0
+                            dist = None
                         
                         val["dist"] = dist
                         val["lat"] = lat
@@ -189,6 +189,9 @@ def main():
                         position['lng'] = my_gps.longitude[0] * -1
                     else:
                         delay = _THROTTLE_INVALID
+                        position['lat'] = None
+                        position['lng'] = None
+
                     
                     if time.ticks_diff(time.ticks_ms(), last_sent) > delay: 
                         print("-> " + st)
