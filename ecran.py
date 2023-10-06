@@ -24,9 +24,9 @@ def updatePos(pos, stations):
         return
     
     display.fill(0)
-    display.text('LAT:' + pos['lat'], 0, 0, 1)
-    display.text('LNG:' + pos['lng'], 0, 9)
-    display.text('YAW:' + pos['yaw'], 0, 18, 1)
+    display.text('LAT:' + pos.get('lat', 'n/a'), 0, 0, 1)
+    display.text('LNG:' + pos.get('lng', 'n/a'), 0, 9)
+    display.text('YAW:' + pos.get('yaw', 'n/a'), 0, 18, 1)
 
     dist = 0
     top = 26
