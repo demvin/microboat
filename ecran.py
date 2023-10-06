@@ -32,13 +32,13 @@ def updatePos(pos, stations):
     top = 26
     for k,i in stations.items():
         #print(k,i)
-        if 'dist' in i:
+        if 'dist' in i and i['dist'] is not None:
             d = i['dist']
-            if d is not None:
-                display.text('Dis:' + str(d) or "0", 0, top, 1)
-                if d > max_dist:
-                    max_dist = d
-                top = top + 8
+            display.text('Dis:' + str(d) or "0", 0, top, 1)
+            if d > max_dist:
+                max_dist = d
+            
+            top = top + 8
     
     display.text('Max:' + str(max_dist) or "0", 0, top, 1)    
 
@@ -99,4 +99,3 @@ def updatePos(pos, stations):
 # display.text('SSD1306', 40, 12, 1)
 # display.text('OLED 128x64', 40, 24, 1)
 # display.show()
-

@@ -42,6 +42,7 @@ class BNO08x_RVC:
         try:
             heading_frame = unpack_from("<BhhhhhhBBBB", frame)
         except Exception as e:
+            return None
             print("exception parse_frame")
             print(frame)
             
