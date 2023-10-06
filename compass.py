@@ -14,7 +14,7 @@ def init():
     uart2 = UART(2, baudrate=115200, rx=27, tx=22)
     rvc = BNO08x_RVC(uart2, timeout=1)
 
-def aquire():
+def acquire():
     global heading
     
     try:

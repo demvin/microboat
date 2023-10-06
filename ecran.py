@@ -6,6 +6,8 @@ display = None
 max_dist = 0
 last_update = time.ticks_ms()
 
+current_screen = 'info'
+
 def init():
     global display
     
@@ -16,7 +18,7 @@ def init():
     except:
         print("no led")
 
-def updatePos(pos, stations):
+def update(screen, pos, stations):
     global last_update
     global max_dist
             
@@ -24,9 +26,10 @@ def updatePos(pos, stations):
         return
     
     display.fill(0)
-    display.text('LAT:' + pos.get('lat', 'n/a'), 0, 0, 1)
-    display.text('LNG:' + pos.get('lng', 'n/a'), 0, 9)
-    display.text('YAW:' + pos.get('yaw', 'n/a'), 0, 18, 1)
+    
+    display.text('LAT:' + str((pos.get('lat', 'n/a')) or "n/a"), 0, 0, 1)
+    display.text('LNG:' + str((pos.get('lng', 'n/a')) or "n/a"), 0, 9)
+    display.text('YAW:' + str((pos.get('yaw', 'n/a')) or "n/a"), 0, 18, 1)
 
     dist = 0
     top = 26
